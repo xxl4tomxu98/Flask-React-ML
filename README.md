@@ -19,10 +19,12 @@ The Flask app has a POST endpoint /prediction. It accepts the input values as a 
 Clone the repo to your computer and go inside it and open two terminals here.
 
 In the first terminal, go inside the ui folder using cd ui. Do
+
     ```bash
       $ npm install
     ```
 To run the UI on server, we will use serve. We will begin by installing the serve globally, post which, we’ll build our application and then finally run the UI using serve on port 3000.
+
     ```bash
       npm install -g serve
       npm run build
