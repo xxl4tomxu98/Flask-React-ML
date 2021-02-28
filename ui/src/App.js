@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
@@ -7,164 +7,150 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.css';
 
-class App extends Component {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isLoading: false,
-      formData: {
+const App = () => {
+    const [isLoading, setIsloading] = useState(false);
+    const [formData, setFormData] = useState({
         sepalLength: 4,
         sepalWidth: 2,
         petalLength: 1,
         petalWidth: 0
-      },
-      result: ""
-    };
-  }
-
-  handleChange = (event) => {
-    const value = event.target.value;
-    const name = event.target.name;
-    var formData = this.state.formData;
-    formData[name] = value;
-    this.setState({
-      formData
     });
-  }
+    const [result, setResult] = useState("");
 
-  handlePredictClick = (event) => {
-    const formData = this.state.formData;
-    //const proxyurl = "https://salty-reaches-05509.herokuapp.com/";
-    const url = "http://127.0.0.1:5000/prediction/";
-    this.setState({ isLoading: true });
-    fetch(url,
-      {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        method: 'POST',
-        body: JSON.stringify(formData)
-      })  //https://salty-reaches-05509.herokuapp.com/http://127.0.0.1:5000/prediction
-      .then(response => response.json())
-      .then(response => {
-        this.setState({
-          result: response.result,
-          isLoading: false
+
+    const handleChange = (event) => {
+        const value = event.target.value;
+        const name = event.target.name;
+        let inputData = {...formData};
+        inputData[name]=value;
+        setFormData(inputData);
+    }
+
+    const handlePredictClick = (event) => {
+        //const proxyurl = "https://salty-reaches-05509.herokuapp.com/";
+        const url = "http://127.0.0.1:5000/prediction/";
+        setIsloading(true);
+        fetch(url,
+        {
+            headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify(formData)
+        })  //https://salty-reaches-05509.herokuapp.com/http://127.0.0.1:5000/prediction
+        .then(response => response.json())
+        .then(response => {
+            setResult(response.result);
+            setIsloading(false);
         });
-      });
-  }
+    }
 
-  handleCancelClick = (event) => {
-    this.setState({ result: "" });
-  }
+    const handleCancelClick = (event) => {
+        setResult("");
+    }
 
-  render() {
-    const isLoading = this.state.isLoading;
-    const formData = this.state.formData;
-    const result = this.state.result;
 
-    var sepalLengths = []
+    let sepalLengths = [];
     for (let i = 4; i <= 7; i = +(i + 0.1).toFixed(1)) {
-      sepalLengths.push(<option key = {i} value = {i}>{i}</option>);
+        sepalLengths.push(<option key = {i} value = {i}>{i}</option>);
     }
-    var sepalWidths = []
+    let sepalWidths = [];
     for (let i = 2; i <= 4; i = +(i + 0.1).toFixed(1)) {
-      sepalWidths.push(<option key = {i} value = {i}>{i}</option>);
+        sepalWidths.push(<option key = {i} value = {i}>{i}</option>);
     }
-    var petalLengths = []
+    let petalLengths = [];
     for (let i = 1; i <= 6; i = +(i + 0.1).toFixed(1)){
-      petalLengths.push(<option key = {i} value = {i}>{i}</option>);
+        petalLengths.push(<option key = {i} value = {i}>{i}</option>);
     }
-    var petalWidths = []
+    let petalWidths = [];
     for (let i = 0.1; i <= 3; i = +(i + 0.1).toFixed(1)) {
-      petalWidths.push(<option key = {i} value = {i}>{i}</option>);
+        petalWidths.push(<option key = {i} value = {i}>{i}</option>);
     }
+
     return (
-      <Container>
-        <div>
-          <h1 className="title">Iris Plant Classifier</h1>
-        </div>
-        <div className="content">
-          <Form>
-            <Form.Row>
-              <Form.Group as={Col}>
-                <Form.Label>Sepal Length</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={formData.sepalLength}
-                  name="sepalLength"
-                  onChange={this.handleChange}>
-                  {sepalLengths}
-                </Form.Control>
-              </Form.Group>
-              <Form.Group as={Col}>
-                <Form.Label>Sepal Width</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={formData.sepalWidth}
-                  name="sepalWidth"
-                  onChange={this.handleChange}>
-                  {sepalWidths}
-                </Form.Control>
-              </Form.Group>
-            </Form.Row>
-            <Form.Row>
-              <Form.Group as={Col}>
-                <Form.Label>Petal Length</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={formData.petalLength}
-                  name="petalLength"
-                  onChange={this.handleChange}>
-                  {petalLengths}
-                </Form.Control>
-              </Form.Group>
-              <Form.Group as={Col}>
-                <Form.Label>Petal Width</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={formData.petalWidth}
-                  name="petalWidth"
-                  onChange={this.handleChange}>
-                  {petalWidths}
-                </Form.Control>
-              </Form.Group>
-            </Form.Row>
-            <Row>
-              <Col>
-                <Button
-                  block
-                  variant="success"
-                  disabled={isLoading}
-                  onClick={!isLoading ? this.handlePredictClick : null}>
-                  { isLoading ? 'Making prediction' : 'Predict' }
-                </Button>
-              </Col>
-              <Col>
-                <Button
-                  block
-                  variant="danger"
-                  disabled={isLoading}
-                  onClick={this.handleCancelClick}>
-                  Reset prediction
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-          {result === "" ? null :
-            (<Row>
-              <Col className="result-container">
-                <h5 id="result">{result}</h5>
-              </Col>
-            </Row>)
-          }
-        </div>
-      </Container>
+        <Container>
+            <div>
+                <h1 className="title">Iris Plant Classifier</h1>
+            </div>
+            <div className="content">
+            <Form>
+                <Form.Row>
+                    <Form.Group as={Col}>
+                        <Form.Label>Sepal Length</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={formData.sepalLength}
+                            name="sepalLength"
+                            onChange={handleChange}>
+                            {sepalLengths}
+                        </Form.Control>
+                    </Form.Group>
+                    <Form.Group as={Col}>
+                        <Form.Label>Sepal Width</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={formData.sepalWidth}
+                            name="sepalWidth"
+                            onChange={handleChange}>
+                            {sepalWidths}
+                        </Form.Control>
+                    </Form.Group>
+                </Form.Row>
+                <Form.Row>
+                    <Form.Group as={Col}>
+                        <Form.Label>Petal Length</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={formData.petalLength}
+                            name="petalLength"
+                            onChange={handleChange}>
+                            {petalLengths}
+                        </Form.Control>
+                    </Form.Group>
+                    <Form.Group as={Col}>
+                        <Form.Label>Petal Width</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={formData.petalWidth}
+                            name="petalWidth"
+                            onChange={handleChange}>
+                            {petalWidths}
+                        </Form.Control>
+                    </Form.Group>
+                </Form.Row>
+                <Row>
+                    <Col>
+                        <Button
+                            block
+                            variant="success"
+                            disabled={isLoading}
+                            onClick={!isLoading ? handlePredictClick : null}>
+                            { isLoading ? 'Making prediction' : 'Predict' }
+                        </Button>
+                    </Col>
+                    <Col>
+                        <Button
+                            block
+                            variant="danger"
+                            disabled={isLoading}
+                            onClick={handleCancelClick}>
+                            Reset prediction
+                        </Button>
+                    </Col>
+                </Row>
+            </Form>
+            {result === "" ? null :
+                (<Row>
+                    <Col className="result-container">
+                        <h5 id="result">{result}</h5>
+                    </Col>
+                </Row>)
+            }
+            </div>
+        </Container>
     );
-  }
+
 }
 
 export default App;
